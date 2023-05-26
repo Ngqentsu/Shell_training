@@ -1,25 +1,26 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <sys/types.h>
+#include "simpleshell.h"
+
+/**
+ * main - entry
+ * 
+ * Return: 0 Always (Success)
+ */
 
 int main(void)
 {
 char *cmd = NULL, *cmd_cp = NULL, *token = NULL, *delim = " \n";
 size_t n = 0;
-int i = 0, argc = 0;
+int i = 0, argc = 0, j;
 char **argv = NULL;
 pid_t pid;
 
 while(1)
 {
-printf("$ ");
+_putchar('$');
+_putchar(' ');
 
 if(getline(&cmd, &n, stdin) == -1)
 {
-printf("Exiting...\n");
 break;
 }
 
@@ -33,8 +34,10 @@ token = strtok(NULL, delim);
 argc++;
 }
 
-argv = malloc(sizeof(char *) * argc);
 token = strtok(cmd_cp, delim);
+argv = malloc(sizeof(char *) * argc);
+if (argv == NULL)
+return (0);
 
 while(token != NULL)
 {
@@ -46,22 +49,26 @@ argv[i] = NULL;
 
 for (i = 0; argv[i] != NULL; i++)
 {
-printf("%s\n", argv[i]);
+for (j = 0; argv[i][j] != '\0'; j++)
+_putchar(argv[i][j]);
+_putchar('\n');
 }
 
 if (strcmp(argv[0], "exit") == 0)
 {
-printf("Exiting...\n");
 break;
 }
 
 pid = fork();
 if (pid == -1)
-return (-1);
+{
+perror("Error ");
+exit(EXIT_FAILURE);
+}
 
 if (pid == 0)
 {
-int check = execve(argv[0], argv, NULL);
+int check = execve(cmd, argv, NULL);
 if (check == -1)
 perror("Error");
 }
